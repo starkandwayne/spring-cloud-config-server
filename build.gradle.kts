@@ -29,8 +29,10 @@ repositories {
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-config-server")
+    implementation("org.springframework.security:spring-security-oauth2-client")
     implementation("org.springframework.boot:spring-boot-starter-data-redis")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure")
     implementation("org.springframework:spring-jdbc")
     implementation("org.springframework.vault:spring-vault-core")
     implementation("com.amazonaws:aws-java-sdk-s3")

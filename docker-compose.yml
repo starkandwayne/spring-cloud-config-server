@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  nginx:
+    image: "nginx:latest"
+    container_name: uaa-proxy
+    ports:
+      - "80:8080"
+    volumes:
+      - $PWD/nginx.conf/:/etc/nginx/nginx.conf
+
+  config-server:
+    build: ./
+    image: "starkandwayne/spring-cloud-config-server:latest"
+    ports:
+      - 8888
+    environment:
+      - SPRING_CLOUD_CONFIG_SERVER_GIT_URI=https://github.com/spring-cloud-samples/config-repo
+      - SECURITY_OAUTH2_RESOURCE_JWT_KEY_URI=http://nginx/token_key
+      - SPRING_PROFILES_ACTIVE=security
+    depends_on:
+      - nginx
