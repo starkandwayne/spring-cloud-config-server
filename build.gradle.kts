@@ -29,18 +29,7 @@ repositories {
 
 dependencies {
     implementation("org.springframework.cloud:spring-cloud-config-server")
-    implementation("org.springframework.security:spring-security-oauth2-client")
-    implementation("org.springframework.boot:spring-boot-starter-data-redis")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure")
-    implementation("org.springframework:spring-jdbc")
-    implementation("org.springframework.vault:spring-vault-core")
-    implementation("com.amazonaws:aws-java-sdk-s3")
-    runtimeOnly("com.zaxxer:HikariCP")
-    runtimeOnly("org.postgresql:postgresql")
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
-    runtimeOnly("com.microsoft.sqlserver:mssql-jdbc")
-    runtimeOnly("org.firebirdsql.jdbc:jaybird-jdk18")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 }
 
 dependencyManagement {
