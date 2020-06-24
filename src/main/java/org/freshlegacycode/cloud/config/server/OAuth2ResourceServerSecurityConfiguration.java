@@ -38,19 +38,11 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
           );
   }
 
-  @Value("#{environment.AUTHORIZED_CLIENTS}") String authorizedClients;
+  @Value("#{environment.REQUIRED_AUDIENCE}") String requiredAudience;
 
   OAuth2TokenValidator<Jwt> audienceValidator() {
-    if (authorizedClients != null && authorizedClients != "") {
-      List<String> clients = Arrays.asList(authorizedClients.split(","));
-      return new JwtClaimValidator<List<String>>(AUD, aud -> {
-        for (String client : clients) {
-          if (aud.contains(client)) {
-            return true;
-          }
-        }
-        return false;
-      });
+    if (requiredAudience != null && requiredAudience != "") {
+      return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(requiredAudience));
     } else {
       return new JwtClaimValidator<List<String>>(AUD, aud -> false);
     }
