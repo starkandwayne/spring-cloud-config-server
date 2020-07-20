@@ -59,7 +59,7 @@ groups:
       # - test-pr
       - pre
       - rc
-      # - shipit
+      - shipit
       - major
       - minor
       # - bump-patch
@@ -200,76 +200,72 @@ jobs:
             icon_url: (( grab meta.slack.icon ))
             text:    '(( concat meta.slack.fail_url " " meta.pipeline ": major job failed" ))'
 
-#   - name: shipit
-#     public: true
-#     serial: true
-#     plan:
-#       - do:
-#         - name: inputs
-#           aggregate:
-#             - { get: version, passed: [rc], params: {bump: final} }
-#             - { get: git,     passed: [rc] }
-#         - name: release
-#           task: release
-#           config:
-#             image_resource:
-#               type: docker-image
-#               source:
-#                 repository: (( grab meta.image.name ))
-#                 tag:        (( grab meta.image.tag ))
-#             platform: linux
-#             inputs:
-#               - name: version
-#               - name: git
-#                 path: (( concat "gopath/src/" meta.go.module ))
-#             outputs:
-#               - name: gh
-#               - name: pushme
-#             run:
-#               path: (( concat "./gopath/src/" meta.go.module "/ci/scripts/shipit" ))
-#               args: []
-#             params:
-#               BINARY:       (( grab meta.go.binary ))
-#               REPO_ROOT:    (( concat "gopath/src/" meta.go.module ))
-#               VERSION_FROM: version/number
-#               RELEASE_NAME: (( grab meta.release ))
-#               RELEASE_ROOT: gh
-#               REPO_OUT:     pushme
-#               BRANCH:       (( grab meta.github.branch ))
-#               CMD_PKG:      (( grab meta.go.cmd_module ))
-#               STATIC_BINARY:  (( grab meta.go.force_static_binary ))
-#               GIT_EMAIL:      (( grab meta.git.email ))
-#               GIT_NAME:       (( grab meta.git.name ))
-#         - name: version
-#           put: version
-#           params: { bump: final }
-#         - name: git
-#           put: git
-#           params:
-#             rebase: true
-#             repository: pushme/git
-#         - name: github
-#           put: github
-#           params:
-#             name:   gh/name
-#             tag:    gh/tag
-#             body:   gh/notes.md
-#             globs: [gh/artifacts/*]
-#         - name: notify
-#           aggregate:
-#           - put: notify
-#             params:
-#               channel:  (( grab meta.slack.channel ))
-#               username: (( grab meta.slack.username ))
-#               icon_url: (( grab meta.slack.icon ))
-#               text_file: notifications/message
-#         on_failure:
-#           put: notify
-#           params:
-#             channel:  (( grab meta.slack.channel ))
-#             username: (( grab meta.slack.username ))
-#             icon_url: (( grab meta.slack.icon ))
-#             text:    '(( concat meta.slack.fail_url " " meta.pipeline ": shipit job failed" ))'
+  - name: shipit
+    public: true
+    serial: true
+    plan:
+      - do:
+        - name: inputs
+          in_parallel:
+            - { get: version, passed: [rc], params: {bump: final} }
+            - { get: git,     passed: [rc] }
+        - name: release
+          task: release
+          config:
+            image_resource:
+              type: docker-image
+              source:
+                repository: (( grab meta.image.name ))
+                tag:        (( grab meta.image.tag ))
+            platform: linux
+            inputs:
+              - name: version
+              - name: git
+            outputs:
+              - name: gh
+              - name: pushme
+            run:
+              path: git/ci/scripts/shipit
+              args: []
+            params:
+              REPO_ROOT:    git
+              VERSION_FROM: version/number
+              RELEASE_NAME: (( grab meta.release ))
+              RELEASE_ROOT: gh
+              REPO_OUT:     pushme
+              BRANCH:       (( grab meta.github.branch ))
+              GIT_EMAIL:      (( grab meta.git.email ))
+              GIT_NAME:       (( grab meta.git.name ))
+        - name: version
+          put: version
+          params: { bump: final }
+        - name: git
+          put: git
+          params:
+            rebase: true
+            repository: pushme/git
+        - name: github
+          put: github
+          params:
+            name:   gh/name
+            tag:    gh/tag
+            body:   gh/notes.md
+            globs: [gh/artifacts/*]
+        - name: notify
+          in_parallel:
+          - put: notify
+            params:
+              channel:  (( grab meta.slack.channel ))
+              username: (( grab meta.slack.username ))
+              icon_url: (( grab meta.slack.icon ))
+              text_file: notifications/message
+        on_failure:
+          put: notify
+          params:
+            channel:  (( grab meta.slack.channel ))
+            username: (( grab meta.slack.username ))
+            icon_url: (( grab meta.slack.icon ))
+            text:    '(( concat meta.slack.fail_url " " meta.pipeline ": shipit job failed" ))'
 
 resource_types:
   - name: slack-notification
@@ -305,12 +301,12 @@ resources:
     source:
       url: (( grab meta.slack.webhook ))
 
-#   - name: github
-#     type: github-release
-#     source:
-#       user:         (( grab meta.github.owner ))
-#       repository:   (( grab meta.github.repo ))
-#       access_token: (( grab meta.github.access_token ))
+  - name: github
+    type: github-release
+    source:
+      user:         (( grab meta.github.owner ))
+      repository:   (( grab meta.github.repo ))
+      access_token: (( grab meta.github.access_token ))
 
 #   - name: git-pull-requests
 #     type: pull-request
