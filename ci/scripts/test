@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -e
+
+cd git
+
+gradle -console verbose --no-build-cache --no-daemon test

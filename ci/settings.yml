@@ -1,0 +1,26 @@
+---
+meta:
+  name:    spring-cloud-config-server
+  target:  snw
+  url:     https://pipes.starkandwayne.com
+
+  initial_version: 0.0.1
+
+  git:
+    email: ci@starkandwayne.com
+    name:  CI Bot
+
+  aws:
+    access_key: ((cfcommunity.access))
+    secret_key: ((cfcommunity.secret))
+
+  github:
+    owner:  starkandwayne
+    repo:   spring-cloud-config-server
+    branch: ci
+    private_key:  ((github.private-key))
+    access_token: ((github.access-token))
+
+  slack:
+    webhook: ((slack.webhook))
+    channel:       "#config-server-broker"
