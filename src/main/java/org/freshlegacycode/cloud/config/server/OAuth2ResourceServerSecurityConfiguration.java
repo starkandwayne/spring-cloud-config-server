@@ -23,6 +23,12 @@ import static org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.AU
 public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
+
+    if (skipSslValidation.equals("true")) {
+      System.out.println("Turning off ssl validation");
+      SSLUtils.turnOffSslChecking();
+    }
+
     http
       .authorizeRequests(authorizeRequests ->
           authorizeRequests
@@ -42,16 +48,20 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
 
   OAuth2TokenValidator<Jwt> audienceValidator() {
     if (requiredAudience != null && requiredAudience != "") {
-      return new JwtClaimValidator<List<String>>(AUD, aud -> aud.contains(requiredAudience));
+      return new JwtClaimValidator<List<String>>(AUD, aud -> {
+        return aud.contains(requiredAudience);
+      });
     } else {
       return new JwtClaimValidator<List<String>>(AUD, aud -> false);
     }
   }
 
   @Value("#{environment.JWK_SET_URI}") String jwkSetUri;
+  @Value("#{environment.SKIP_SSL_VALIDATION}") String skipSslValidation;
 
   @Bean
   JwtDecoder jwtDecoder() {
+
     NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri).build();
 
     OAuth2TokenValidator<Jwt> audienceValidator = audienceValidator();
