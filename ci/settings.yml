@@ -17,7 +17,7 @@ meta:
   github:
     owner:  starkandwayne
     repo:   spring-cloud-config-server
-    branch: ci
+    branch: oauth
     private_key:  ((github.private-key))
     access_token: ((github.access-token))
 
